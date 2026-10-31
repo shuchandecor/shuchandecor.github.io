@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flooring Container &amp; Pallet Load Calculator — free, open source</title>
+<meta name="description" content="Free calculator for flooring exporters and importers: how many cartons of SPC, laminate, LVT or tile fit in a 20GP or 40HQ container, floor-loaded or palletized, with weight and fill percentage.">
+<style>
+  :root { --green:#1a4a36; --amber:#b45309; --line:#e7e5e4; --muted:#57534e; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:#1c1917; background:#fafaf9; line-height:1.5; }
+  header { background:var(--green); color:#fff; padding:2.2rem 1rem; text-align:center; }
+  header h1 { font-size:1.5rem; font-weight:700; }
+  header p { opacity:.85; font-size:.95rem; margin-top:.4rem; max-width:44rem; margin-left:auto; margin-right:auto; }
+  main { max-width:60rem; margin:0 auto; padding:1.5rem 1rem 3rem; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:.75rem; padding:1.25rem; margin-top:1.25rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr)); gap:.9rem; }
+  label { display:block; font-size:.78rem; font-weight:600; color:var(--muted); margin-bottom:.25rem; }
+  input, select { width:100%; padding:.5rem .6rem; border:1px solid var(--line); border-radius:.45rem; font-size:.95rem; }
+  input:focus, select:focus { outline:2px solid #94a3b8; }
+  fieldset { border:0; }
+  legend { font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--green); margin-bottom:.6rem; }
+  button { margin-top:1rem; background:var(--green); color:#fff; border:0; border-radius:.5rem; padding:.65rem 1.4rem; font-size:.95rem; font-weight:600; cursor:pointer; }
+  button:hover { background:#143828; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; margin-top:.6rem; }
+  th, td { border:1px solid var(--line); padding:.45rem .6rem; text-align:left; }
+  th { background:#f5f5f4; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .warn { color:var(--amber); font-weight:600; }
+  .fine { font-size:.8rem; color:var(--muted); margin-top:.8rem; }
+  footer { border-top:1px solid var(--line); background:#fff; padding:1.4rem 1rem; text-align:center; font-size:.85rem; color:var(--muted); }
+  footer a { color:var(--green); font-weight:600; text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+  code { background:#f5f5f4; padding:.1rem .3rem; border-radius:.25rem; font-size:.85em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Flooring Container &amp; Pallet Load Calculator</h1>
+  <p>How many cartons fit in a 20GP or 40HQ container — floor-loaded or palletized.
+     Free, no signup, everything computed in your browser.</p>
+</header>
+
+<main>
+  <form class="card" id="f">
+    <fieldset>
+      <legend>Carton</legend>
+      <div class="grid">
+        <div><label for="cl">Length (cm)</label><input id="cl" type="number" min="1" max="300" step="0.1" value="120"></div>
+        <div><label for="cw">Width (cm)</label><input id="cw" type="number" min="1" max="300" step="0.1" value="20"></div>
+        <div><label for="ch">Height (cm)</label><input id="ch" type="number" min="1" max="200" step="0.1" value="16"></div>
+        <div><label for="cwt">Gross weight (kg)</label><input id="cwt" type="number" min="0.1" max="2000" step="0.1" value="18"></div>
+        <div><label for="mode">Loading</label>
+          <select id="mode">
+            <option value="floor">Floor-loaded (no pallets)</option>
+            <option value="pallet">Palletized (110×110 cm)</option>
+          </select>
+        </div>
+      </div>
+    </fieldset>
+    <button type="submit">Calculate</button>
+    <p class="fine">Example carton shown: 12 planks of 910×150 mm SPC, packed flat. Replace with your
+      actual carton dimensions from the packing specification.</p>
+  </form>
+
+  <div class="card" id="out" hidden>
+    <h2 style="font-size:1.05rem">Result</h2>
+    <table id="tbl">
+      <thead><tr><th>Container</th><th class="num">Cartons</th><th class="num">Pallets</th><th class="num">Load weight</th><th class="num">Volume fill</th><th class="num">Payload used</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="fine" id="note"></p>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1.05rem">Container reference (internal)</h2>
+    <table>
+      <thead><tr><th>Type</th><th class="num">L×W×H (m)</th><th class="num">Volume</th><th class="num">Typical payload</th></tr></thead>
+      <tbody>
+        <tr><td>20GP</td><td class="num">5.90 × 2.35 × 2.39</td><td class="num">33.2 m³</td><td class="num">21,000 kg</td></tr>
+        <tr><td>40HQ</td><td class="num">12.03 × 2.35 × 2.69</td><td class="num">76.1 m³</td><td class="num">26,000 kg</td></tr>
+      </tbody>
+    </table>
+    <p class="fine">Payload limits vary by carrier and country road rules — always confirm with your
+      freight forwarder before booking. Weight, not volume, usually caps heavy flooring cargo:
+      8 mm SPC runs ~12 kg/m², so a full 40HQ of 8 mm can approach the payload limit before it
+      fills the volume.</p>
+  </div>
+</main>
+
+<footer>
+  Maintained by <a href="https://shuchanflooring.com">SHUCHAN FLOORING</a> — SPC &amp; laminate
+  flooring factory, Changzhou, China ·
+  <a href="https://shuchanflooring.com/landed-cost-calculator">Landed-cost calculator</a> ·
+  <a href="https://shuchanflooring.com/press">Press kit</a> ·
+  Open source — <a href="https://github.com/shuchandecor/shuchandecor.github.io">view source</a>
+</footer>
+
+<script>
+"use strict";
+const CONTAINERS = [
+  { name: "20GP", L: 590, W: 235, H: 239, payload: 21000 },
+  { name: "40HQ", L: 1203, W: 235, H: 269, payload: 26000 },
+];
+const PALLET = { L: 110, W: 110, H: 14.5 }; // industrial pallet cm incl. deck
+
+const $ = (id) => document.getElementById(id);
+
+function perLayer(cl, cw, L, W) {
+  const a = Math.floor(L / cl) * Math.floor(W / cw);
+  const b = Math.floor(L / cw) * Math.floor(W / cl);
+  return Math.max(a, b);
+}
+
+document.getElementById("f").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const cl = +$("cl").value, cw = +$("cw").value, ch = +$("ch").value,
+        cwt = +$("cwt").value, mode = $("mode").value;
+  if (!(cl > 0 && cw > 0 && ch > 0 && cwt > 0)) return;
+
+  const rows = [];
+  for (const c of CONTAINERS) {
+    if (mode === "floor") {
+      const layer = perLayer(cl, cw, c.L, c.W);
+      const layers = Math.floor(c.H / ch);
+      let cartons = layer * layers;
+      let limiting = cartons * cwt > c.payload ? "payload" : "volume";
+      if (limiting === "payload") cartons = Math.floor(c.payload / cwt);
+      const weight = cartons * cwt;
+      rows.push({ name: c.name, cartons, pallets: 0, weight,
+        fill: ((cartons * cl * cw * ch) / (c.L * c.W * c.H) * 100),
+        payload: (weight / c.payload * 100), limiting });
+    } else {
+      const perPalletLayer = perLayer(cl, cw, PALLET.L, PALLET.W);
+      const stackH = PALLET.H + ch;
+      const maxStack = Math.max(1, Math.min(6, Math.floor(180 / ch))); // ~1.8 m safe stack
+      const perPallet = perPalletLayer * maxStack;
+      const palletFootprint = (PALLET.L + 6) * (PALLET.W + 6); // forklift clearance
+      const palletsByFloor = perLayer(PALLET.L + 6, PALLET.W + 6, c.L, c.W);
+      let pallets = palletsByFloor * Math.floor((c.H - 5) / Math.min(stackH, 180));
+      let cartons = pallets * perPallet;
+      let limiting = cartons * cwt > c.payload ? "payload" : "volume";
+      if (limiting === "payload") {
+        cartons = Math.floor(c.payload / cwt);
+        pallets = Math.ceil(cartons / perPallet);
+      }
+      const weight = cartons * cwt;
+      rows.push({ name: c.name, cartons, pallets, weight,
+        fill: (pallets * palletFootprint * Math.min(stackH, 180)) / (c.L * c.W * c.H) * 100,
+        payload: (weight / c.payload * 100), limiting });
+    }
+  }
+
+  const tb = $("tbl").tBodies[0];
+  tb.innerHTML = "";
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${r.name}</td><td class="num">${r.cartons.toLocaleString()}</td>` +
+      `<td class="num">${r.pallets || "—"}</td><td class="num">${Math.round(r.weight).toLocaleString()} kg</td>` +
+      `<td class="num">${Math.min(100, r.fill).toFixed(0)}%</td>` +
+      `<td class="num ${r.payload > 95 ? "warn" : ""}">${r.payload.toFixed(0)}%</td>`;
+    tb.appendChild(tr);
+  }
+  const heavy = rows[0].weight / rows[0].cartons * 1 >= 0;
+  $("note").textContent = rows.some(r => r.limiting === "payload")
+    ? "Payload-limited: cargo weight caps this load before the container is full. Volume is not the constraint for this carton weight."
+    : "Volume-limited: the container fills up before the payload limit is reached.";
+  $("out").hidden = false;
+});
+</script>
+</body>
+</html>
